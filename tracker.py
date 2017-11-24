@@ -17,6 +17,17 @@ def getParcels():
         output.append({'id': p['id'],'adress': p['adress']})
     return jsonify({'parcels': output})
 
+@app.route('/v1.0/parcels/<int:parcelId>',methods=['GET'])
+def getParcel(parcelId):
+    parcels = mongo.db.mytable
+    p = parcels.find_one({'id':parcelId})
+    if p:
+        output = {'id':p['id'],'adress':p['adress'],'city':p['city'],
+                    'county':p['county']}
+    else:
+        output = 'Not found'
+    return  jsonify({'Result':output})
+
 @app.route('/v1.0/parcels',methods=['POST'])
 def newParcel():
     parcels = mongo.db.mytable
@@ -30,6 +41,18 @@ def newParcel():
     }
     status = parcels.insert(parcel)
     return jsonify({'parcel':'Ok'}),201
+
+@app.route('/v1.0/parcels/<int:parcelId>', methods=['DELETE'])
+def deleteParcel(parcelId):
+    parcels = mongo.db.mytable
+    p = parcels.find_one_and_delete({'id':parcelId})
+    if p:
+        output = {'id':p['id'],'adress':p['adress'],'city':p['city'],
+                    'county':p['county']}
+    else:
+        output = 'Not found'
+    return  jsonify({'Result':output})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
