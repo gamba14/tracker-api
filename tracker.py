@@ -14,13 +14,13 @@ def getParcels():
     parcels = mongo.db.mytable
     output = []
     for p in parcels.find():
-        output.append({'id': p['id'],'adress': p['adress']})
+        output.append({'id': p['_id'],'adress': p['adress']})
     return jsonify({'parcels': output})
 
 @app.route('/v1.0/parcels/<int:parcelId>',methods=['GET'])
 def getParcel(parcelId):
     parcels = mongo.db.mytable
-    p = parcels.find_one({'id':parcelId})
+    p = parcels.find_one({'_id':parcelId})
     if p:
         output = {'id':p['id'],'adress':p['adress'],'city':p['city'],
                     'county':p['county']}
@@ -33,8 +33,14 @@ def newParcel():
     parcels = mongo.db.mytable
     if not request.json or not 'id' in request.json:
         abort(400)
+    idParcel = str(db.seqs.find_and_modify(
+        query={ 'collection' : 'admin_collection' },
+        update={'$inc': {'id': 1}},
+        fields={'id': 1, '_id': 0},
+        new=True
+    ).get('id'))
     parcel ={
-                'id':request.json['id'],
+                '_id':idParcel,
                 'adress':request.json['adress'],
                 'city':request.json['city'],
                 'county':request.json['county']
@@ -45,9 +51,9 @@ def newParcel():
 @app.route('/v1.0/parcels/<int:parcelId>', methods=['DELETE'])
 def deleteParcel(parcelId):
     parcels = mongo.db.mytable
-    p = parcels.find_one_and_delete({'id':parcelId})
+    p = parcels.find_one_and_delete({'_id':parcelId})
     if p:
-        output = {'id':p['id'],'adress':p['adress'],'city':p['city'],
+        output = {'id':p['_id'],'adress':p['adress'],'city':p['city'],
                     'county':p['county']}
     else:
         output = 'Not found'

@@ -8,3 +8,8 @@ parcels = {'id':1,
            'adress':'1fakestreet'
            }
 parcelsDb.mytable.insert(parcels)
+
+client.seqs.insert({
+    'collection' : 'admin_collection',
+    'id' : 0
+})
